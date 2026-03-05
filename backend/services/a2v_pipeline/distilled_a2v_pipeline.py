@@ -8,14 +8,14 @@ denoising with frozen audio, returning original audio).
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any
 
 import torch
 
-from api_types import ImageConditioningInput
-from services.services_utils import AudioOrNone, TilingConfigType, device_supports_fp8, sync_device
+from services.services_utils import AudioOrNone, TilingConfigType, sync_device
 
 if TYPE_CHECKING:
+    from ltx_core.loader.primitives import LoraPathStrengthAndSDOps
     from ltx_core.types import LatentState
 
 
@@ -32,11 +32,10 @@ class DistilledA2VPipeline:
         distilled_checkpoint_path: str,
         gemma_root: str,
         spatial_upsampler_path: str,
-        loras: list[Any] | None = None,
+        loras: LoraPathStrengthAndSDOps | None = None,
         device: torch.device | None = None,
         quantization: Any | None = None,
     ) -> None:
-        from ltx_core.quantization import QuantizationPolicy
         from ltx_pipelines.utils import ModelLedger
         from ltx_pipelines.utils.helpers import get_device
         from ltx_pipelines.utils.types import PipelineComponents
@@ -53,7 +52,7 @@ class DistilledA2VPipeline:
             checkpoint_path=distilled_checkpoint_path,
             gemma_root_path=gemma_root,
             spatial_upsampler_path=spatial_upsampler_path,
-            loras=loras or [],
+            loras=loras,
             quantization=quantization,
         )
 
@@ -84,7 +83,7 @@ class DistilledA2VPipeline:
         from ltx_core.model.upsampler import upsample_video
         from ltx_core.model.video_vae import decode_video as vae_decode_video
         from ltx_core.text_encoders.gemma import encode_text
-        from ltx_core.types import Audio, AudioLatentShape, LatentState, VideoPixelShape
+        from ltx_core.types import Audio, AudioLatentShape, VideoPixelShape
         from ltx_pipelines.utils.args import ImageConditioningInput as LtxImageInput
         from ltx_pipelines.utils.constants import DISTILLED_SIGMA_VALUES, STAGE_2_DISTILLED_SIGMA_VALUES
         from ltx_pipelines.utils.helpers import (
@@ -116,6 +115,7 @@ class DistilledA2VPipeline:
 
         # Audio encode.
         decoded_audio = decode_audio_from_file(audio_path, self.device, audio_start_time, audio_max_duration)
+        assert decoded_audio is not None, "Audio file contains no audio stream"
         encoded_audio_latent = vae_encode_audio(
             decoded_audio, self.model_ledger.audio_encoder()
         )
@@ -175,7 +175,7 @@ class DistilledA2VPipeline:
             noiser=noiser,
             sigmas=stage_1_sigmas,
             stepper=stepper,
-            denoising_loop_fn=denoising_loop,
+            denoising_loop_fn=denoising_loop,  # type: ignore[arg-type]
             components=self.pipeline_components,
             dtype=dtype,
             device=self.device,
@@ -210,11 +210,11 @@ class DistilledA2VPipeline:
             noiser=noiser,
             sigmas=stage_2_sigmas,
             stepper=stepper,
-            denoising_loop_fn=denoising_loop,
+            denoising_loop_fn=denoising_loop,  # type: ignore[arg-type]
             components=self.pipeline_components,
             dtype=dtype,
             device=self.device,
-            noise_scale=stage_2_sigmas[0],
+            noise_scale=stage_2_sigmas[0].item(),
             initial_video_latent=upscaled_video_latent,
             initial_audio_latent=encoded_audio_latent,
         )
