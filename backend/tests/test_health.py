@@ -1,24 +1,13 @@
 """Tests for /health and /api/gpu-info endpoints."""
 
 from state.app_state_types import GpuSlot, VideoPipelineState, VideoPipelineWarmth
-from tests.fakes.services import (
-    FakeFastNativeVideoPipeline,
-    FakeFastVideoPipeline,
-    FakeProNativeVideoPipeline,
-    FakeProVideoPipeline,
-)
+from tests.fakes.services import FakeFastVideoPipeline
 
 
-def _set_video_pipeline(state, model_type: str):
-    pipeline_by_model = {
-        "fast": FakeFastVideoPipeline,
-        "fast-native": FakeFastNativeVideoPipeline,
-        "pro": FakeProVideoPipeline,
-        "pro-native": FakeProNativeVideoPipeline,
-    }
+def _set_video_pipeline(state):
     state.state.gpu_slot = GpuSlot(
         active_pipeline=VideoPipelineState(
-            pipeline=pipeline_by_model[model_type](),
+            pipeline=FakeFastVideoPipeline(),
             warmth=VideoPipelineWarmth.COLD,
             is_compiled=False,
         ),
@@ -36,27 +25,19 @@ class TestHealth:
         assert data["active_model"] is None
 
     def test_fast_model_loaded(self, client, test_state):
-        _set_video_pipeline(test_state, "fast")
+        _set_video_pipeline(test_state)
         r = client.get("/health")
         data = r.json()
         assert data["models_loaded"] is True
         assert data["active_model"] == "fast"
-        assert data["fast_loaded"] is True
-
-    def test_fast_native_model_loaded(self, client, test_state):
-        _set_video_pipeline(test_state, "fast-native")
-        r = client.get("/health")
-        data = r.json()
         assert data["models_loaded"] is True
-        assert data["active_model"] == "fast-native"
-        assert data["fast_loaded"] is True
 
     def test_models_downloaded(self, client, create_fake_model_files):
         create_fake_model_files()
         r = client.get("/health")
         data = r.json()
-        for model_status in data["models_status"]:
-            assert model_status["downloaded"] is True
+        assert len(data["models_status"]) == 1
+        assert data["models_status"][0]["downloaded"] is True
 
     def test_cors_header(self, client):
         r = client.get("/health", headers={"Origin": "http://localhost:5173"})

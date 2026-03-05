@@ -84,9 +84,6 @@ class HealthResponse(BaseModel):
     status: str
     models_loaded: bool
     active_model: str | None
-    fast_loaded: bool
-    pro_loaded: bool
-    pro_native_loaded: bool
     gpu_info: GpuTelemetry
     sage_attention: bool
     models_status: list[ModelStatusItem]

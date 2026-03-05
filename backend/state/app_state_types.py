@@ -11,12 +11,9 @@ if TYPE_CHECKING:
     from state.app_settings import AppSettings
     from services.interfaces import (
         A2VPipeline,
-        FastNativeVideoPipeline,
         FastVideoPipeline,
         ImageGenerationPipeline,
         IcLoraPipeline,
-        ProNativeVideoPipeline,
-        ProVideoPipeline,
         RetakePipeline,
         TextEncoder,
     )
@@ -27,7 +24,7 @@ if TYPE_CHECKING:
 # Model file availability (disk truth)
 # ============================================================
 
-ModelFileType = Literal["checkpoint", "upsampler", "distilled_lora", "text_encoder", "zit"]
+ModelFileType = Literal["checkpoint", "upsampler", "text_encoder", "zit"]
 
 # Availability and download are orthogonal concerns.
 AvailableFiles = dict[ModelFileType, Path | None]
@@ -104,7 +101,7 @@ class VideoPipelineWarmth(Enum):
 
 @dataclass
 class VideoPipelineState:
-    pipeline: FastVideoPipeline | FastNativeVideoPipeline | ProVideoPipeline | ProNativeVideoPipeline
+    pipeline: FastVideoPipeline
     warmth: VideoPipelineWarmth
     is_compiled: bool
 

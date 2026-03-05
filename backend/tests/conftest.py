@@ -76,9 +76,6 @@ def test_state(tmp_path: Path, fake_services: FakeServices):
         ltx_api_client=fake_services.ltx_api_client,
         zit_api_client=fake_services.zit_api_client,
         fast_video_pipeline_class=type(fake_services.fast_video_pipeline),
-        fast_native_video_pipeline_class=type(fake_services.fast_native_video_pipeline),
-        pro_video_pipeline_class=type(fake_services.pro_video_pipeline),
-        pro_native_video_pipeline_class=type(fake_services.pro_native_video_pipeline),
         image_generation_pipeline_class=type(fake_services.image_generation_pipeline),
         ic_lora_pipeline_class=type(fake_services.ic_lora_pipeline),
         a2v_pipeline_class=type(fake_services.a2v_pipeline),
@@ -115,7 +112,6 @@ def create_fake_model_files(test_state):
         for path in (
             test_state.config.model_path("checkpoint"),
             test_state.config.model_path("upsampler"),
-            test_state.config.model_path("distilled_lora"),
         ):
             path.parent.mkdir(parents=True, exist_ok=True)
             path.write_bytes(b"\x00" * 1024)

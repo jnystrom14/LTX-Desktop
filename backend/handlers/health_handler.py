@@ -37,20 +37,13 @@ class HealthHandler(StateHandlerBase):
 
     def get_health(self) -> HealthResponse:
         active_model: str | None = None
-        fast_loaded = False
-        pro_loaded = False
-        pro_native_loaded = False
+        models_loaded = False
 
         with self._lock:
             match self.state.gpu_slot:
                 case GpuSlot(active_pipeline=VideoPipelineState(pipeline=pipeline)):
                     active_model = pipeline.pipeline_kind
-                    if active_model in {"fast", "fast-native"}:
-                        fast_loaded = True
-                    elif active_model == "pro":
-                        pro_loaded = True
-                    elif active_model == "pro-native":
-                        pro_native_loaded = True
+                    models_loaded = True
                 case _:
                     pass
 
@@ -58,30 +51,15 @@ class HealthHandler(StateHandlerBase):
 
         return HealthResponse(
             status="ok",
-            models_loaded=fast_loaded or pro_loaded or pro_native_loaded,
+            models_loaded=models_loaded,
             active_model=active_model,
-            fast_loaded=fast_loaded,
-            pro_loaded=pro_loaded,
-            pro_native_loaded=pro_native_loaded,
             gpu_info=GpuTelemetry(**self._gpu_info.get_gpu_info()),
             sage_attention=self._use_sage_attention,
             models_status=[
                 ModelStatusItem(
                     id="fast",
                     name="LTX-2 Fast (Distilled)",
-                    loaded=fast_loaded,
-                    downloaded=files["checkpoint"] is not None,
-                ),
-                ModelStatusItem(
-                    id="pro",
-                    name="LTX-2 Pro (Two-Stage)",
-                    loaded=pro_loaded,
-                    downloaded=files["checkpoint"] is not None,
-                ),
-                ModelStatusItem(
-                    id="pro-native",
-                    name="LTX-2 Pro Native (One-Stage)",
-                    loaded=pro_native_loaded,
+                    loaded=models_loaded,
                     downloaded=files["checkpoint"] is not None,
                 ),
             ],

@@ -25,7 +25,6 @@ class ModelFileDownloadSpec:
 MODEL_FILE_ORDER: tuple[ModelFileType, ...] = (
     "checkpoint",
     "upsampler",
-    "distilled_lora",
     "text_encoder",
     "zit",
 )
@@ -46,13 +45,6 @@ DEFAULT_MODEL_DOWNLOAD_SPECS: dict[ModelFileType, ModelFileDownloadSpec] = {
         repo_id="Lightricks/LTX-2",
         description="2x Upscaler",
     ),
-    "distilled_lora": ModelFileDownloadSpec(
-        relative_path=Path("ltx-2-19b-distilled-lora-384.safetensors"),
-        expected_size_bytes=400_000_000,
-        is_folder=False,
-        repo_id="Lightricks/LTX-2",
-        description="LoRA for Pro model",
-    ),
     "text_encoder": ModelFileDownloadSpec(
         relative_path=Path("gemma-3-12b-it-qat-q4_0-unquantized"),
         expected_size_bytes=25_000_000_000,
@@ -71,7 +63,7 @@ DEFAULT_MODEL_DOWNLOAD_SPECS: dict[ModelFileType, ModelFileDownloadSpec] = {
 
 
 DEFAULT_REQUIRED_MODEL_TYPES: frozenset[ModelFileType] = frozenset(
-    {"checkpoint", "upsampler", "distilled_lora", "zit"}
+    {"checkpoint", "upsampler", "zit"}
 )
 
 

@@ -115,7 +115,7 @@ class TestGenerate:
         r = client.post("/api/generate", json=_T2V_JSON)
         assert r.status_code == 200
 
-        pipeline = fake_services.fast_native_video_pipeline
+        pipeline = fake_services.fast_video_pipeline
         call = pipeline.generate_calls[0]
         assert call["width"] == 960
         assert call["height"] == 512
@@ -127,7 +127,7 @@ class TestGenerate:
         r = client.post("/api/generate", json={**_T2V_JSON, "resolution": "720p"})
         assert r.status_code == 200
 
-        pipeline = fake_services.fast_native_video_pipeline
+        pipeline = fake_services.fast_video_pipeline
         call = pipeline.generate_calls[0]
         assert call["width"] == 1280
         assert call["height"] == 704
@@ -141,13 +141,13 @@ class TestGenerate:
         r = client.post("/api/generate", json=_T2V_JSON)
         assert r.status_code == 200
 
-        pipeline = fake_services.fast_native_video_pipeline
+        pipeline = fake_services.fast_video_pipeline
         assert pipeline.generate_calls[0]["seed"] == 123
 
     def test_error_sets_generation_error(self, client, test_state, fake_services, create_fake_model_files):
         create_fake_model_files()
         _enable_local_text_encoding(test_state)
-        fake_services.fast_native_video_pipeline.raise_on_generate = RuntimeError("GPU OOM")
+        fake_services.fast_video_pipeline.raise_on_generate = RuntimeError("GPU OOM")
 
         r = client.post("/api/generate", json=_T2V_JSON)
         assert r.status_code == 500
@@ -158,7 +158,7 @@ class TestGenerate:
     def test_cancelled_response(self, client, test_state, fake_services, create_fake_model_files):
         create_fake_model_files()
         _enable_local_text_encoding(test_state)
-        fake_services.fast_native_video_pipeline.raise_on_generate = RuntimeError("cancelled")
+        fake_services.fast_video_pipeline.raise_on_generate = RuntimeError("cancelled")
 
         r = client.post("/api/generate", json=_T2V_JSON)
         assert r.status_code == 200
@@ -459,7 +459,7 @@ class TestForcedApiGenerate:
         assert r.status_code == 200
         assert r.json()["status"] == "complete"
         assert len(fake_services.ltx_api_client.text_to_video_calls) == 1
-        assert len(fake_services.fast_native_video_pipeline.generate_calls) == 0
+        assert len(fake_services.fast_video_pipeline.generate_calls) == 0
 
     def test_prefers_api_video_without_key_falls_back_to_local(self, client, test_state, fake_services, create_fake_model_files):
         test_state.config.force_api_generations = False
@@ -473,7 +473,7 @@ class TestForcedApiGenerate:
         assert r.status_code == 200
         assert r.json()["status"] == "complete"
         assert len(fake_services.ltx_api_client.text_to_video_calls) == 0
-        assert len(fake_services.fast_native_video_pipeline.generate_calls) == 1
+        assert len(fake_services.fast_video_pipeline.generate_calls) == 1
 
     def test_t2v_routes_to_ltx_api(self, client, test_state, fake_services):
         test_state.config.force_api_generations = True

@@ -517,151 +517,6 @@ class FakeFastVideoPipeline(_FakeVideoPipelineBase):
         )
 
 
-class FakeFastNativeVideoPipeline(_FakeVideoPipelineBase):
-    pipeline_kind = "fast-native"
-    _singleton: ClassVar["FakeFastNativeVideoPipeline | None"] = None
-
-    @classmethod
-    def bind_singleton(cls, pipeline: "FakeFastNativeVideoPipeline") -> None:
-        cls._singleton = pipeline
-
-    @staticmethod
-    def create(
-        checkpoint_path: str,
-        gemma_root: str | None,
-        device: str | object,
-    ) -> "FakeFastNativeVideoPipeline":
-        del checkpoint_path, gemma_root, device
-        pipeline = FakeFastNativeVideoPipeline._singleton
-        if pipeline is None:
-            raise RuntimeError("FakeFastNativeVideoPipeline singleton is not bound")
-        return pipeline
-
-    def generate(
-        self,
-        prompt: str,
-        seed: int,
-        height: int,
-        width: int,
-        num_frames: int,
-        frame_rate: float,
-        images: list[ImageConditioningInput],
-        output_path: str,
-    ) -> None:
-        self._record_generate(
-            {
-                "prompt": prompt,
-                "seed": seed,
-                "height": height,
-                "width": width,
-                "num_frames": num_frames,
-                "frame_rate": frame_rate,
-                "images": images,
-                "output_path": output_path,
-            }
-        )
-
-
-class FakeProVideoPipeline(_FakeVideoPipelineBase):
-    pipeline_kind = "pro"
-    _singleton: ClassVar["FakeProVideoPipeline | None"] = None
-
-    @classmethod
-    def bind_singleton(cls, pipeline: "FakeProVideoPipeline") -> None:
-        cls._singleton = pipeline
-
-    @staticmethod
-    def create(
-        checkpoint_path: str,
-        gemma_root: str | None,
-        upsampler_path: str,
-        distilled_lora_path: str,
-        device: str | object,
-    ) -> "FakeProVideoPipeline":
-        del checkpoint_path, gemma_root, upsampler_path, distilled_lora_path, device
-        pipeline = FakeProVideoPipeline._singleton
-        if pipeline is None:
-            raise RuntimeError("FakeProVideoPipeline singleton is not bound")
-        return pipeline
-
-    def generate(
-        self,
-        prompt: str,
-        negative_prompt: str,
-        seed: int,
-        height: int,
-        width: int,
-        num_frames: int,
-        frame_rate: float,
-        num_inference_steps: int,
-        images: list[ImageConditioningInput],
-        output_path: str,
-    ) -> None:
-        self._record_generate(
-            {
-                "prompt": prompt,
-                "negative_prompt": negative_prompt,
-                "seed": seed,
-                "height": height,
-                "width": width,
-                "num_frames": num_frames,
-                "frame_rate": frame_rate,
-                "num_inference_steps": num_inference_steps,
-                "images": images,
-                "output_path": output_path,
-            }
-        )
-
-
-class FakeProNativeVideoPipeline(_FakeVideoPipelineBase):
-    pipeline_kind = "pro-native"
-    _singleton: ClassVar["FakeProNativeVideoPipeline | None"] = None
-
-    @classmethod
-    def bind_singleton(cls, pipeline: "FakeProNativeVideoPipeline") -> None:
-        cls._singleton = pipeline
-
-    @staticmethod
-    def create(
-        checkpoint_path: str,
-        gemma_root: str | None,
-        device: str | object,
-    ) -> "FakeProNativeVideoPipeline":
-        del checkpoint_path, gemma_root, device
-        pipeline = FakeProNativeVideoPipeline._singleton
-        if pipeline is None:
-            raise RuntimeError("FakeProNativeVideoPipeline singleton is not bound")
-        return pipeline
-
-    def generate(
-        self,
-        prompt: str,
-        negative_prompt: str,
-        seed: int,
-        height: int,
-        width: int,
-        num_frames: int,
-        frame_rate: float,
-        num_inference_steps: int,
-        images: list[ImageConditioningInput],
-        output_path: str,
-    ) -> None:
-        self._record_generate(
-            {
-                "prompt": prompt,
-                "negative_prompt": negative_prompt,
-                "seed": seed,
-                "height": height,
-                "width": width,
-                "num_frames": num_frames,
-                "frame_rate": frame_rate,
-                "num_inference_steps": num_inference_steps,
-                "images": images,
-                "output_path": output_path,
-            }
-        )
-
-
 class FakeZitOutput:
     def __init__(self, color: str = "red") -> None:
         self.images = [Image.new("RGB", (32, 32), color)]
@@ -900,9 +755,6 @@ class FakeServices:
     ltx_api_client: FakeLTXAPIClient = field(default_factory=FakeLTXAPIClient)
     zit_api_client: FakeZitAPIClient = field(default_factory=FakeZitAPIClient)
     fast_video_pipeline: FakeFastVideoPipeline = field(default_factory=FakeFastVideoPipeline)
-    fast_native_video_pipeline: FakeFastNativeVideoPipeline = field(default_factory=FakeFastNativeVideoPipeline)
-    pro_video_pipeline: FakeProVideoPipeline = field(default_factory=FakeProVideoPipeline)
-    pro_native_video_pipeline: FakeProNativeVideoPipeline = field(default_factory=FakeProNativeVideoPipeline)
     image_generation_pipeline: FakeImageGenerationPipeline = field(default_factory=FakeImageGenerationPipeline)
     ic_lora_pipeline: FakeIcLoraPipeline = field(default_factory=FakeIcLoraPipeline)
     a2v_pipeline: FakeA2VPipeline = field(default_factory=FakeA2VPipeline)
@@ -911,9 +763,6 @@ class FakeServices:
 
     def __post_init__(self) -> None:
         FakeFastVideoPipeline.bind_singleton(self.fast_video_pipeline)
-        FakeFastNativeVideoPipeline.bind_singleton(self.fast_native_video_pipeline)
-        FakeProVideoPipeline.bind_singleton(self.pro_video_pipeline)
-        FakeProNativeVideoPipeline.bind_singleton(self.pro_native_video_pipeline)
         FakeImageGenerationPipeline.bind_singleton(self.image_generation_pipeline)
         FakeIcLoraPipeline.bind_singleton(self.ic_lora_pipeline)
         FakeA2VPipeline.bind_singleton(self.a2v_pipeline)

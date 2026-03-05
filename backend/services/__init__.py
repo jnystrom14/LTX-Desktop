@@ -1,7 +1,6 @@
 """State service package exports (interface-first, import-safe)."""
 
 from services.interfaces import (
-    FastNativeVideoPipeline,
     FastVideoPipeline,
     ZitAPIClient,
     ImageGenerationPipeline,
@@ -14,8 +13,6 @@ from services.interfaces import (
     IcLoraPipeline,
     LTXAPIClient,
     ModelDownloader,
-    ProNativeVideoPipeline,
-    ProVideoPipeline,
     TaskRunner,
     TextEncoder,
     VideoPipelineModelType,
@@ -34,10 +31,7 @@ __all__ = [
     "TextEncoder",
     "VideoPipelineModelType",
     "FastVideoPipeline",
-    "FastNativeVideoPipeline",
     "ZitAPIClient",
-    "ProVideoPipeline",
-    "ProNativeVideoPipeline",
     "ImageGenerationPipeline",
     "IcLoraPipeline",
     "IcLoraModelDownloader",

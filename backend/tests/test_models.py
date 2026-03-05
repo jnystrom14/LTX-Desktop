@@ -217,7 +217,6 @@ class TestAtomicDownloads:
         # Files should be at their final locations
         assert test_state.config.model_path("checkpoint").exists()
         assert test_state.config.model_path("upsampler").exists()
-        assert test_state.config.model_path("distilled_lora").exists()
 
         # .downloading/ should be gone (or empty)
         downloading = test_state.config.downloading_dir

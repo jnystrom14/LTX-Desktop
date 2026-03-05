@@ -5,7 +5,6 @@ from __future__ import annotations
 from typing import Literal
 
 from services.a2v_pipeline.a2v_pipeline import A2VPipeline
-from services.fast_native_video_pipeline.fast_native_video_pipeline import FastNativeVideoPipeline
 from services.fast_video_pipeline.fast_video_pipeline import FastVideoPipeline
 from services.zit_api_client.zit_api_client import ZitAPIClient
 from services.gpu_cleaner.gpu_cleaner import GpuCleaner
@@ -21,14 +20,12 @@ from services.image_generation_pipeline.image_generation_pipeline import ImageGe
 from services.ltx_api_client.ltx_api_client import LTXAPIClient
 from services.retake_pipeline.retake_pipeline import RetakePipeline
 from services.model_downloader.model_downloader import ModelDownloader
-from services.pro_native_video_pipeline.pro_native_video_pipeline import ProNativeVideoPipeline
-from services.pro_video_pipeline.pro_video_pipeline import ProVideoPipeline
 from services.services_utils import JSONScalar, JSONValue
 from services.task_runner.task_runner import TaskRunner
 from services.text_encoder.text_encoder import TextEncoder
 from services.video_processor.video_processor import VideoInfoPayload, VideoProcessor
 
-VideoPipelineModelType = Literal["fast", "fast-native", "pro", "pro-native"]
+VideoPipelineModelType = Literal["fast"]
 
 __all__ = [
     "A2VPipeline",
@@ -48,10 +45,7 @@ __all__ = [
     "TaskRunner",
     "VideoPipelineModelType",
     "FastVideoPipeline",
-    "FastNativeVideoPipeline",
     "ZitAPIClient",
-    "ProVideoPipeline",
-    "ProNativeVideoPipeline",
     "ImageGenerationPipeline",
     "IcLoraPipeline",
     "IcLoraModelDownloader",
